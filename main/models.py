@@ -6,5 +6,5 @@ import cx_Oracle as ora
 
 class Model_oracleDB_teamd:
     def myconn(self):
-        conn = ora.connect('chatpt/chatpt123@116.122.37.100:1521/xe')
+        conn = ora.connect('chatptDB/chatptDB123@116.122.37.100:1521/xe')
         return conn;
