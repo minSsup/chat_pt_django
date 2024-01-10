@@ -84,7 +84,7 @@ class oracle_teamd(Model_oracleDB_teamd):
     def last_food_DB(self,usernum):
         conn = self.myconn()
         cursor = conn.cursor()
-        sql = "SELECT foodnum FROM upphoto WHERE uploaddate = (SELECT MAX(uploaddate) FROM upphoto) and nnum = :usernum"
+        sql = "SELECT foodnum FROM upphoto WHERE uploaddate = (SELECT MAX(uploaddate) FROM upphoto where nnum = :usernum) and nnum = :usernum"
         cursor.execute(sql, usernum=usernum)
 
         rows = cursor.fetchall()
