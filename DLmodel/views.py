@@ -48,7 +48,29 @@ def calory(request):
         # 추천된 항목들에 대한 정보 찾기
         recommended_foods = df_food_data[df_food_data['FOODNUM'].isin(recommended_items)]
 
-
+        # # 허용 칼로리
+        # allowed_cal = recommand_cal * 1.1
+        # # 추천 데이터 프레임
+        # # Initialize allow_recommand as an empty DataFrame with the same columns as recommended_foods
+        # allow_recommand = pd.DataFrame(columns=recommended_foods.columns)
+        #
+        # # Iterate through the recommended_foods DataFrame
+        # for i in range(len(recommended_foods)):
+        #     food_cal = recommended_foods.iloc[i]['FOODCAL']
+        #     print("*" * 30, food_cal)
+        #     # Check if adding this food would exceed the allowed calories
+        #     if nowcalory + food_cal < allowed_cal:
+        #         # Append the row to allow_recommand DataFrame
+        #         allow_recommand = allow_recommand.add(recommended_foods.iloc[i])
+        #         print(recommended_foods.iloc[i])
+        #
+        #     # If there are already 6 or more items in allow_recommand, break out of the loop
+        #     if len(allow_recommand) >= 6:
+        #         break
+        #
+        # # Reset the index of the allow_recommand DataFrame
+        # allow_recommand.reset_index(drop=True, inplace=True)
+        # print(allow_recommand)
 
         resData = {
             "recommand_cal": recommand_cal  # Add recommand_cal to the response
@@ -139,7 +161,7 @@ def evaluate_predictions(testset, svd_model, knn_model, nmf_model):
         rmse = accuracy.rmse(predictions)
         print(f"Model {model.__class__.__name__} RMSE: {rmse}")
 
-# 추천 목록 5개를 반환하는 함수
+# 추천 목록 10개를 반환하는 함수
 def get_recommendations(user_id, trainset, svd_model, knn_model, nmf_model, top_n=5):
     # 사용자가 평가하지 않은 항목들 찾기
     user_inner_id = trainset.to_inner_uid(user_id)
