@@ -56,6 +56,7 @@ MIDDLEWARE = [
 ALLOWED_HOSTS = ['localhost']
 
 
+
 ROOT_URLCONF = "ChatPtDjango.urls"
 
 TEMPLATES = [
