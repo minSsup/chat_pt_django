@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-flw!yb23kwxk!5f^ivv=h$ifz#@3*&g(v$h1*&24#u*%sk0-s0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.211','localhost:80', '192.168.0.225']
+ALLOWED_HOSTS = ['192.168.0.211', '192.168.0.225']
 
 
 
@@ -37,26 +37,23 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    'corsheaders',
     "django.contrib.staticfiles",
+    "ImgModel",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "ImgModel",
-    "corsheaders",
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
-
-ALLOWED_HOSTS = ['localhost']
-
-
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = "ChatPtDjango.urls"
 

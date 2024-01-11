@@ -24,17 +24,8 @@ def calory(request):
         #현재 칼로리 정보
         nowcalory = nowcal(userNum)
 
-        # 권장 칼로리 정보, 나이 정보, 목적 정보
-        recommand_cal,userage, userpurpose =cal_Recommended_Calories(user_id)
-
-        # 연령대 정보
-        age_Decade = np.floor(userage/10) * 10
-
-        # 연령대별 최신 25개 음식 정보 및 등록자 정보
-        list_age_food = getListAgeFood(userNum,age_Decade)
-
-        # 목적별 최신 25개 음식 정보 및 등록자 정보
-        list_purpose_food = getListPurposeFood(userNum,userpurpose)
+        # 권장 칼로리 정보
+        recommand_cal =cal_Recommended_Calories(user_id)
 
         #현재 탄단지 양
         now_tan, now_dan, now_gi = nowNutrient(userNum)
@@ -57,6 +48,30 @@ def calory(request):
         # 추천된 항목들에 대한 정보 찾기
         recommended_foods = df_food_data[df_food_data['FOODNUM'].isin(recommended_items)]
 
+        # # 허용 칼로리
+        # allowed_cal = recommand_cal * 1.1
+        # # 추천 데이터 프레임
+        # # Initialize allow_recommand as an empty DataFrame with the same columns as recommended_foods
+        # allow_recommand = pd.DataFrame(columns=recommended_foods.columns)
+        #
+        # # Iterate through the recommended_foods DataFrame
+        # for i in range(len(recommended_foods)):
+        #     food_cal = recommended_foods.iloc[i]['FOODCAL']
+        #     print("*" * 30, food_cal)
+        #     # Check if adding this food would exceed the allowed calories
+        #     if nowcalory + food_cal < allowed_cal:
+        #         # Append the row to allow_recommand DataFrame
+        #         allow_recommand = allow_recommand.add(recommended_foods.iloc[i])
+        #         print(recommended_foods.iloc[i])
+        #
+        #     # If there are already 6 or more items in allow_recommand, break out of the loop
+        #     if len(allow_recommand) >= 6:
+        #         break
+        #
+        # # Reset the index of the allow_recommand DataFrame
+        # allow_recommand.reset_index(drop=True, inplace=True)
+        # print(allow_recommand)
+
         resData = {
             "recommand_cal": recommand_cal  # Add recommand_cal to the response
             ,"now_cal" : nowcalory
@@ -64,17 +79,40 @@ def calory(request):
             ,"now_nutrition" :  [now_tan, now_dan, now_gi]
             ,"lastfood" : lastfoodName
             ,"recomandfood" : json.loads(recommended_foods.to_json(orient='records', force_ascii=False))
-            ,"userage" : userage
-            ,"age_food_info": list_age_food
-            ,"purpose_food_info" : list_purpose_food
-            ,'userpurpose' : userpurpose
         }
+
 
 
 
         return JsonResponse(resData, safe=False)
 
+def recommand(request):
+    if request.method == 'GET':
 
+        user_id = request.GET.get('id')
+        nomeminfo = oracle_teamd().normal_member_DB(user_id)
+        userNum = int(nomeminfo[0][0])
+        df_food_data, df_food_rating_data = load_data()
+
+        # 데이터셋 로딩 및 모델 학습
+        trainset, testset = prepare_dataset(df_food_rating_data)
+        svd_model, knn_model, nmf_model = train_models(trainset)
+
+        # 예측 평가
+        evaluate_predictions(testset, svd_model, knn_model, nmf_model)
+
+        # 추천 항목 가져오기
+        recommended_items = get_recommendations(userNum, trainset, svd_model, knn_model, nmf_model)
+
+        # 추천된 항목들에 대한 정보 찾기
+        recommended_foods = df_food_data[df_food_data['FOODNUM'].isin(recommended_items)]
+
+        # 결과를 JSON 형식으로 변환
+        resData = {
+            "recommended_foods": json.loads(recommended_foods.to_json(orient='records', force_ascii=False)),
+        }
+
+        return JsonResponse(resData, safe=False)
 
 
 def load_data():
@@ -153,7 +191,9 @@ def cal_Recommended_Calories(user_id):
     meminfo  = oracle_teamd().member_DB(user_id)
     # 일반 회원 정보
     nomeminfo = oracle_teamd().normal_member_DB(user_id)
+    user_name = meminfo[0][0]  # 유저이름
     user_gender = meminfo[0][1] # 유저 성별
+   # print(meminfo[0][2])
     user_age = calculate_age(meminfo[0][2])  # 유저 나이
     user_weight = float(nomeminfo[0][2])  # 유저 몸무게
     user_height = float(nomeminfo[0][3]) # 유저 키
@@ -166,7 +206,7 @@ def cal_Recommended_Calories(user_id):
     # print("이름 : " ,user_name)
     # print("키 : ", user_height)
     # print("몸무게 : ", user_weight)
-    #print("목적 : ", user_purpose)
+    # print("목적 : ", user_purpose)
     # print("활동량 : ", user_activity)
     recommand_cal = 0
 
@@ -186,7 +226,7 @@ def cal_Recommended_Calories(user_id):
     multiplier_p = purpose_multiplier[user_purpose]
     recommand_cal += multiplier_p
     print ("권장 칼로리 : " ,recommand_cal)
-    return recommand_cal,user_age,user_purpose
+    return recommand_cal
 
 
 
@@ -201,7 +241,6 @@ def calculate_age(birthdate):
     age_in_years = age_in_days / 365.25
 
     return int(age_in_years)
-
 
 # 권장 탄수화물, 단백질 지방을 구하는 공식
 def recommand_tandangi(recommand_cal,user_id):
@@ -283,10 +322,3 @@ def lastfoodInfo(usernum):
     foodInfo = oracle_teamd().food_Num_DB(lastfoodInfo[0][0])
     foodName =  foodInfo[0][7]
     return foodName
-def getListAgeFood(usernum, ageDecade):
-    ageFoodList = oracle_teamd().list_age_food_info(usernum,ageDecade)
-    return ageFoodList
-
-def getListPurposeFood(usernum, purpose):
-    purposeFoodList = oracle_teamd().list_purpose_food_info(usernum,purpose)
-    return purposeFoodList
