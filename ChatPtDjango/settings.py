@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-flw!yb23kwxk!5f^ivv=h$ifz#@3*&g(v$h1*&24#u*%sk0-s0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.211','localhost:80']
+ALLOWED_HOSTS = ['192.168.0.211','localhost:80', '192.168.0.225']
 
 
 
@@ -50,7 +50,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-
+    "ImgModel",
+    "corsheaders",
 ]
 
 ALLOWED_HOSTS = ['localhost']
