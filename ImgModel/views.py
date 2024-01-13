@@ -6,54 +6,8 @@ import numpy as np
 from ImgModel.models import oracle_teamd
 import base64
 import logging
-
-# @csrf_exempt
-# def find_food(request):
-#     if request.method == 'POST':
-#
-#         images_data = request.FILES
-#         processed_files = []  # 처리된 파일명을 저장할 리스트
-#         predicted_foods = []  # 예측된 음식명을 저장할 리스트
-#
-#         for category in images_data:
-#             for img_file in images_data.getlist(category):
-#                 if img_file:
-#                     # 이미지 데이터를 NumPy 배열로 읽기
-#                     nparr = np.fromstring(img_file.read(), np.uint8)
-#                     image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-#
-#                     # 이미지 현재 크기 확인 및 리사이즈
-#                     height, width = image.shape[:2]
-#                     if height != 300 or width != 300:
-#                         image = cv2.resize(image, (300, 300))
-#
-#
-#                     #음식 이름 예측
-#                     model = apps.ImgmodelConfig.model
-#                     # if image.mode != 'RGB':
-#                     #     image = image.convert('RGB')
-#                     img_array = np.asarray(image)
-#                     img_array = np.expand_dims(img_array, axis=0)
-#
-#                     predictions = str(model.predict(img_array).argmax())
-#                     food_name = apps.ImgmodelConfig.food_names[predictions]
-#                     predicted_foods.append(food_name)
-#
-#                     # 이미지 저장 및 시퀀스 이름 반환
-#                     file_name = oracle_teamd().up_photo_DB(nnum='401', foodnum=predictions, category='아침', mass='300')
-#                     file_path = 'E:/chat_PT_Spring/src/main/resources/static/images/upphoto/' + file_name + '.jpg'
-#                     print(file_path)
-#                     cv2.imwrite(file_path, image)
-#
-#                     processed_files.append(file_name)
-#
-#
-#
-#         if processed_files:
-#             return JsonResponse({'status': 'success', 'files': processed_files, 'foods': predicted_foods})
-#         else:
-#             return JsonResponse({'status': 'error', 'message': 'No files processed'}, status=400)
-#
+from PIL import Image
+import io
 
 # 로거 설정
 logger = logging.getLogger(__name__)
@@ -77,32 +31,44 @@ def find_food(request):
         # 이미지 데이터 처리
         for category, base64_img in images_data.items():
             try:
-                if len(base64_img) % 4 == 0:
-                    # Base64 디코딩 및 이미지 데이터 변환
-                    img_data = base64.b64decode(base64_img)
-                    nparr = np.frombuffer(img_data, np.uint8)
-                    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                # Base64 데이터에서 MIME 타입 부분을 제거
+                if base64_img.startswith('data:image'):
+                    # 'data:image/jpeg;base64,' 부분을 제거
+                    header, base64_encoded_data = base64_img.split(';base64,')
+                    # Base64 디코딩
+                    img_data = base64.b64decode(base64_encoded_data)
+                    # 바이너리 데이터를 PIL Image 객체로 변환
+                    image = Image.open(io.BytesIO(img_data))
+                    image = image.resize((300, 300))  # 모델이 기대하는 입력 크기 (이 경우 300x300)
 
-                    # 이미지 현재 크기 확인 및 리사이즈
-                    height, width = image.shape[:2]
-                    if height != 300 or width != 300:
-                        image = cv2.resize(image, (300, 300))
+                    # RGBA 이미지를 RGB로 변환
+                    if image.mode != 'RGB':
+                        image = image.convert('RGB')
 
                     # 음식 이름 예측
                     model = apps.ImgmodelConfig.model
                     img_array = np.expand_dims(np.asarray(image), axis=0)
-                    predictions = str(model.predict(img_array).argmax())
-                    food_name = apps.ImgmodelConfig.food_names[predictions]
-                    predicted_foods.append(food_name)
+                    predictions = model.predict(img_array)
+                    # 상위 4개 인덱스 가져오기
+                    top_4_foods = [ int(e) for e in np.argsort(predictions[0])[-4:]]
+                    # 상위 4개 확률 가져오기
+                    top_4_probabilities = [round(float(prob) * 100, 2) for prob in predictions[0][top_4_foods]]
+                    # 가장 확률이 높은 예측 사용
+                    primary_prediction = top_4_foods[-1]
+                    predicted_foods.append(primary_prediction)
+
+                    # 나머지 3개는 후보로 사용
+                    candidate_predictions = top_4_foods[:-1]
 
                     category = category[:category.find('[')]
                     # 이미지 저장 및 시퀀스 이름 반환
-                    file_name = oracle_teamd().up_photo_DB(normal_id=user_name, foodnum=predictions, category=category, mass='300')
+                    file_name = oracle_teamd().up_photo_DB(normal_id=user_name, foodnum=primary_prediction, category=category, mass='300',
+                                                           candidate_predictions=candidate_predictions, top_4_probabilities=top_4_probabilities)
                     file_path = f'E:/chat_PT_Spring/src/main/resources/static/images/upphoto/{file_name}.jpg'
-                    cv2.imwrite(file_path, image)
+                    image.save(file_path)
                     processed_files.append(file_name)
                 else:
-                    logger.error(f"Invalid Base64 data for category {category}")
+                    logger.error(f"Invalid image data format for category {category}")
             except Exception as e:
                 logger.error(f"Error processing image for category {category}: {e}")
 
