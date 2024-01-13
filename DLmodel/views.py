@@ -25,7 +25,16 @@ def calory(request):
         nowcalory = nowcal(userNum)
 
         # 권장 칼로리 정보
-        recommand_cal =cal_Recommended_Calories(user_id)
+        recommand_cal,userage, userpurpose =cal_Recommended_Calories(user_id)
+
+        # 연령대 정보
+        age_Decade = np.floor(userage / 10) * 10
+
+        # 연령대별 최신 25개 음식 정보 및 등록자 정보
+        list_age_food = getListAgeFood(userNum, age_Decade)
+
+        # 목적별 최신 25개 음식 정보 및 등록자 정보
+        list_purpose_food = getListPurposeFood(userNum, userpurpose)
 
         #현재 탄단지 양
         now_tan, now_dan, now_gi = nowNutrient(userNum)
@@ -79,6 +88,11 @@ def calory(request):
             ,"now_nutrition" :  [now_tan, now_dan, now_gi]
             ,"lastfood" : lastfoodName
             ,"recomandfood" : json.loads(recommended_foods.to_json(orient='records', force_ascii=False))
+            , "userage": userage
+            , "age_food_info": list_age_food
+            , "purpose_food_info": list_purpose_food
+            , 'userpurpose': userpurpose
+
         }
 
 
@@ -226,7 +240,7 @@ def cal_Recommended_Calories(user_id):
     multiplier_p = purpose_multiplier[user_purpose]
     recommand_cal += multiplier_p
     print ("권장 칼로리 : " ,recommand_cal)
-    return recommand_cal
+    return recommand_cal,user_age,user_purpose
 
 
 
@@ -322,3 +336,11 @@ def lastfoodInfo(usernum):
     foodInfo = oracle_teamd().food_Num_DB(lastfoodInfo[0][0])
     foodName =  foodInfo[0][7]
     return foodName
+
+def getListAgeFood(usernum, ageDecade):
+    ageFoodList = oracle_teamd().list_age_food_info(usernum,ageDecade)
+    return ageFoodList
+
+def getListPurposeFood(usernum, purpose):
+    purposeFoodList = oracle_teamd().list_purpose_food_info(usernum,purpose)
+    return purposeFoodList
