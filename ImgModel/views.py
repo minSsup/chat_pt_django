@@ -61,8 +61,9 @@ def find_food(request):
                     candidate_predictions = top_4_foods[:-1]
 
                     category = category[:category.find('[')]
+                    print(f"user_name : {user_name}, foodnum : {primary_prediction}, category : {category}, mass : {300}, candidate_predictions : {candidate_predictions}, ")
                     # 이미지 저장 및 시퀀스 이름 반환
-                    file_name = oracle_teamd().up_photo_DB(normal_id=user_name, foodnum=primary_prediction, category=category, mass='300',
+                    file_name = oracle_teamd().up_photo_DB(normal_id=user_name, foodnum=primary_prediction, category=category,
                                                            candidate_predictions=candidate_predictions, top_4_probabilities=top_4_probabilities)
                     file_path = f'E:/chat_PT_Spring/src/main/resources/static/images/upphoto/{file_name}.jpg'
                     image.save(file_path)
