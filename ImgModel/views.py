@@ -28,10 +28,12 @@ def find_food(request):
         processed_files = []  # 처리된 파일명을 저장할 리스트
         predicted_foods = []  # 예측된 음식명을 저장할 리스트
 
+        print(images_data)
         # 이미지 데이터 처리
         for category, base64_img in images_data.items():
             try:
                 # Base64 데이터에서 MIME 타입 부분을 제거
+
                 if base64_img.startswith('data:image'):
                     # 'data:image/jpeg;base64,' 부분을 제거
                     header, base64_encoded_data = base64_img.split(';base64,')
@@ -59,12 +61,11 @@ def find_food(request):
 
                     # 나머지 3개는 후보로 사용
                     candidate_predictions = top_4_foods[:-1]
-
                     category = category[:category.find('[')]
                     # 이미지 저장 및 시퀀스 이름 반환
                     file_name = oracle_teamd().up_photo_DB(normal_id=user_name, foodnum=primary_prediction, category=category, mass='300',
                                                            candidate_predictions=candidate_predictions, top_4_probabilities=top_4_probabilities)
-                    file_path = f'E:/chat_PT_Spring/src/main/resources/static/images/upphoto/{file_name}.jpg'
+                    file_path = f'C:/Users/user/git/chat_PT_Spring/src/main/resources/static/images/upphoto/{file_name}.jpg'
                     image.save(file_path)
                     processed_files.append(file_name)
                 else:
