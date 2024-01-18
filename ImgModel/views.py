@@ -25,15 +25,11 @@ def find_food(request):
         user_name = request.POST.get('userName', 'default_user')
         images_data = {k: v for k, v in request.POST.items() if k != 'userName'}
         print("user_name : ", user_name)
-        processed_files = []  # 처리된 파일명을 저장할 리스트
-        predicted_foods = []  # 예측된 음식명을 저장할 리스트
-
-        print(images_data)
+        results = []  # 각 이미지에 대한 예측 결과를 저장할 리스트
         # 이미지 데이터 처리
         for category, base64_img in images_data.items():
             try:
                 # Base64 데이터에서 MIME 타입 부분을 제거
-
                 if base64_img.startswith('data:image'):
                     # 'data:image/jpeg;base64,' 부분을 제거
                     header, base64_encoded_data = base64_img.split(';base64,')
@@ -55,26 +51,28 @@ def find_food(request):
                     top_4_foods = [ int(e) for e in np.argsort(predictions[0])[-4:]]
                     # 상위 4개 확률 가져오기
                     top_4_probabilities = [round(float(prob) * 100, 2) for prob in predictions[0][top_4_foods]]
-                    # 가장 확률이 높은 예측 사용
-                    primary_prediction = top_4_foods[-1]
-                    predicted_foods.append(primary_prediction)
 
-                    # 나머지 3개는 후보로 사용
-                    candidate_predictions = top_4_foods[:-1]
-                    category = category[:category.find('[')]
-                    # 이미지 저장 및 시퀀스 이름 반환
-                    file_name = oracle_teamd().up_photo_DB(normal_id=user_name, foodnum=primary_prediction, category=category, mass='300',
-                                                           candidate_predictions=candidate_predictions, top_4_probabilities=top_4_probabilities)
-                    file_path = f'C:/Users/user/git/chat_PT_Spring/src/main/resources/static/images/upphoto/{file_name}.jpg'
-                    image.save(file_path)
-                    processed_files.append(file_name)
+                    # 각 이미지에 대한 예측 결과 생성
+                    result = {
+                        'category': category[:category.find('[')],
+                        'foodnum': top_4_foods[3],
+                        'candidate1': top_4_foods[2],
+                        'candidate2': top_4_foods[1],
+                        'candidate3': top_4_foods[0],
+                        'predictrate': top_4_probabilities[3],
+                        'candidate1rate': top_4_probabilities[2],
+                        'candidate2rate': top_4_probabilities[1],
+                        'candidate3rate': top_4_probabilities[0],
+                    }
+                    results.append(result)
                 else:
                     logger.error(f"Invalid image data format for category {category}")
             except Exception as e:
                 logger.error(f"Error processing image for category {category}: {e}")
 
-        if processed_files:
-            return JsonResponse({'status': 'success', 'files': processed_files, 'foods': predicted_foods})
+        if results:
+            print(results)
+            return JsonResponse({'status': 'success', 'results': results})
         else:
             return JsonResponse({'status': 'error', 'message': 'No files processed'}, status=400)
     else:
