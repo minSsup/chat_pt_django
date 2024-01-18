@@ -37,15 +37,15 @@ def find_food(request):
                     img_data = base64.b64decode(base64_encoded_data)
                     # 바이너리 데이터를 PIL Image 객체로 변환
                     image = Image.open(io.BytesIO(img_data))
-                    image = image.resize((300, 300))  # 모델이 기대하는 입력 크기 (이 경우 300x300)
+                    image_resize = image.resize((300, 300))  # 모델이 기대하는 입력 크기 (이 경우 300x300)
 
                     # RGBA 이미지를 RGB로 변환
-                    if image.mode != 'RGB':
-                        image = image.convert('RGB')
+                    if image_resize.mode != 'RGB':
+                        image_resize = image_resize.convert('RGB')
 
                     # 음식 이름 예측
                     model = apps.ImgmodelConfig.model
-                    img_array = np.expand_dims(np.asarray(image), axis=0)
+                    img_array = np.expand_dims(np.asarray(image_resize), axis=0)
                     predictions = model.predict(img_array)
                     # 상위 4개 인덱스 가져오기
                     top_4_foods = [ int(e) for e in np.argsort(predictions[0])[-4:]]
@@ -54,6 +54,7 @@ def find_food(request):
 
                     # 각 이미지에 대한 예측 결과 생성
                     result = {
+                        'base64_encoded_data' : base64_encoded_data,
                         'category': category[:category.find('[')],
                         'foodnum': top_4_foods[3],
                         'candidate1': top_4_foods[2],

@@ -30,7 +30,7 @@ class oracle_teamd(Model_oracleDB_teamd):
     def food_rating_DB(self):
         conn = self.myconn()
         cursor = conn.cursor()
-        sql = "select * from memberfood"
+        sql = "select rating, foodnum, nnum from memberfood"
         cursor.execute(sql)
         rows = cursor.fetchall()
 
