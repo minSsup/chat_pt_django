@@ -22,4 +22,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("dlmodel/",include('DLmodel.urls')),
     path("imgmodel/", include('ImgModel.urls')),
+    path("", include('connectionTest.urls'))
 ]
