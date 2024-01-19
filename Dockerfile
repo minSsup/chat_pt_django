@@ -19,11 +19,11 @@ RUN pip install -r requirements.txt
 COPY . /app/
 
 # 빌드 완료
-FROM python:3.11.5-slim
-
-WORKDIR /app
-
-COPY --from=builder /app /app
+#FROM python:3.11.5-slim
+#
+#WORKDIR /app
+#
+#COPY --from=builder /app /app
 
 # Gunicorn 실행
 # CMD ["gunicorn", "django.wsgi:application", "-b", "0.0.0.0:9000"]
