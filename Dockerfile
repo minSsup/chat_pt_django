@@ -13,7 +13,7 @@ COPY requirements.txt /app/
 RUN pip install -r requirements.txt
 
 # Gunicorn 설치
-RUN pip install gunicorn
+# RUN pip install gunicorn
 
 # Django 애플리케이션 추가
 COPY . /app/
@@ -26,4 +26,7 @@ WORKDIR /app
 COPY --from=builder /app /app
 
 # Gunicorn 실행
-CMD ["gunicorn", "django.wsgi:application", "-b", "0.0.0.0:9000"]
+# CMD ["gunicorn", "django.wsgi:application", "-b", "0.0.0.0:9000"]
+
+# Django 애플리케이션 실행
+CMD ["python", "manage.py", "runserver", "0.0.0.0:9000"]
