@@ -15,11 +15,8 @@ RUN apt-get update && apt-get install -y libgl1-mesa-glx && rm -rf /var/lib/apt/
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Gunicorn 설치
-RUN pip install --no-cache-dir gunicorn
-
 # 모델 파일 추가
-# COPY modelFoodName1_200.h5 /app
+COPY modelFoodName1_200.h5 /app
 
 # Django 애플리케이션 추가
 COPY . /app/
@@ -27,5 +24,5 @@ COPY . /app/
 ENV HOST 0.0.0.0
 EXPOSE 9000
 
-# Gunicorn 실행
-CMD ["gunicorn", "ChatPtDjango.wsgi:application", "-b", "0.0.0.0:9000"]
+# runserver로 실행
+CMD ["python", "manage.py", "runserver", "0.0.0.0:9000"]
