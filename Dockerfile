@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir gunicorn
 
 # 모델 파일 추가
-COPY modelFoodName1_200.h5 /app
+# COPY modelFoodName1_200.h5 /app
 
 # Django 애플리케이션 추가
 COPY . /app/
