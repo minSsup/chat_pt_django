@@ -28,5 +28,8 @@ COPY . /app/
 # Gunicorn 실행
 # CMD ["gunicorn", "django.wsgi:application", "-b", "0.0.0.0:9000"]
 
+ENV HOST 0.0.0.0
+EXPOSE 9000
+
 # Django 애플리케이션 실행
 CMD ["python", "manage.py", "runserver", "0.0.0.0:9000"]
