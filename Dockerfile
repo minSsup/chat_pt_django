@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 
 # OpenGL 라이브러리와 curl 설치
-RUN apt-get update && apt-get install -y libgl1-mesa-glx curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libgl1-mesa-glx libaio1 curl && rm -rf /var/lib/apt/lists/*
 
 # Oracle Instant Client 다운로드 및 설치
 RUN curl -o instantclient-basic-linux.x64-21.3.0.0.0.zip https://download.oracle.com/otn_software/linux/instantclient/213000/instantclient-basic-linux.x64-21.3.0.0.0.zip && \
@@ -17,6 +17,9 @@ RUN curl -o instantclient-basic-linux.x64-21.3.0.0.0.zip https://download.oracle
     rm -f instantclient-basic-linux.x64-21.3.0.0.0.zip && \
     echo /usr/local/instantclient_21_3 > /etc/ld.so.conf.d/oracle-instantclient.conf && \
     ldconfig
+
+# Oracle Instant Client 설치 후 동적 라이브러리 링크 갱신
+RUN echo /usr/local/instantclient_21_3 > /etc/ld.so.conf.d/oracle-instantclient.conf && ldconfig
 
 # 필요한 패키지 설치
 COPY requirements.txt /app/
