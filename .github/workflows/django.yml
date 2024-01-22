@@ -1,0 +1,44 @@
+name: Django CI/CD Docker
+
+on:
+  push:
+    branches: [ "master" ]
+    
+permissions:
+  contents: read
+  packages: write
+  
+jobs:
+  build-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build Docker images
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/chatpt-django .
+
+    - name: docker login
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    - name: docker Hub push
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/chatpt-django
+
+  run-docker-image-on-ec2:
+    needs: build-docker-image
+    runs-on: self-hosted
+
+    steps:
+      - name: docker pull
+        run: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/chatpt-django
+      
+      - name: docker stop container
+        run: sudo docker stop django || true
+
+      - name: docker run new container
+        run: sudo docker run --name django --rm -d -p 9000:9000 ${{ secrets.DOCKERHUB_USERNAME }}/chatpt-django
+
+      - name: delete old docker image
+        run: sudo docker system prune -f
