@@ -43,7 +43,7 @@ def calory(request):
         recommand_tan, recommand_dan, recommand_gi = recommand_tandangi(recommand_cal,user_id)
 
         #마지막으로 먹은 음식 이름
-        lastfoodName = lastfoodInfo(userNum)
+        lastfoodName,lastfoodImg= lastfoodInfo(userNum)
 
         # 데이터셋 로딩 및 모델 학습
         trainset, testset = prepare_dataset(df_food_rating_data)
@@ -63,6 +63,7 @@ def calory(request):
             ,"recomand_nutrition" : [recommand_tan, recommand_dan, recommand_gi]
             ,"now_nutrition" :  [now_tan, now_dan, now_gi]
             ,"lastfood" : lastfoodName
+            ,"lastfoodimage" : lastfoodImg
             ,"recomandfood" : json.loads(recommended_foods.to_json(orient='records', force_ascii=False))
             , "userage": userage
             , "age_food_info": list_age_food
@@ -310,8 +311,10 @@ def lastfoodInfo(usernum):
     lastfoodInfo = oracle_teamd().last_food_DB(usernum)
     print(lastfoodInfo)
     foodInfo = oracle_teamd().food_Num_DB(lastfoodInfo[0][0])
+    print("음식전체 정보",foodInfo)
     foodName =  foodInfo[0][7]
-    return foodName
+    foodImage = foodInfo[0][2]
+    return foodName,foodImage
 
 def getListAgeFood(usernum, ageDecade):
     ageFoodList = oracle_teamd().list_age_food_info(usernum,ageDecade)
