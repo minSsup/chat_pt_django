@@ -8,6 +8,11 @@ ENV PYTHONUNBUFFERED 1
 # 작업 디렉토리 설정
 WORKDIR /app
 
+# 필요한 패키지 설치
+RUN apk update && \
+    apk add --no-cache gcc musl-dev python3-dev libffi-dev openssl-dev cargo && \
+    pip install --no-cache-dir numpy Cython
+
 # OpenGL 라이브러리와 curl 설치
 RUN apk update && apk add curl mesa-gl libaio && rm -rf /var/cache/apk/*
 
