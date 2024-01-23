@@ -12,7 +12,6 @@ WORKDIR /app
 RUN apk update && apk add curl mesa-gl libaio && rm -rf /var/cache/apk/*
 
 # Oracle Instant Client 다운로드 및 설치
-
 RUN apk --no-cache add libaio libnsl libc6-compat curl && \
     cd /tmp && \
     curl -o instantclient-basiclite.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linuxx64.zip -SL && \
