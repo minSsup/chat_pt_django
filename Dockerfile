@@ -1,5 +1,5 @@
 # 기본 파이썬 이미지를 사용
-FROM python:3.11.5-alpine as builder
+FROM python:3.11.5-alpine
 
 # 환경변수 설정
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 
 # OpenGL 라이브러리와 curl 설치
-RUN apt-get update && apt-get install -y libgl1-mesa-glx libaio1 curl && rm -rf /var/lib/apt/lists/*
+RUN apk update && apk add curl mesa-gl libaio && rm -rf /var/cache/apk/*
 
 # Oracle Instant Client 다운로드 및 설치
 RUN curl -o instantclient-basic-linux.x64-21.3.0.0.0.zip https://download.oracle.com/otn_software/linux/instantclient/213000/instantclient-basic-linux.x64-21.3.0.0.0.zip && \
@@ -19,7 +19,7 @@ RUN curl -o instantclient-basic-linux.x64-21.3.0.0.0.zip https://download.oracle
     ldconfig
 
 # Oracle Instant Client 설치 후 동적 라이브러리 링크 갱신
-RUN echo /usr/local/instantclient_21_3 > /etc/ld.so.conf.d/oracle-instantclient.conf && ldconfig
+RUN echo /usr/local/instantclient_21_3 > /etc/ld.so.conf.d/oracle-instantclient.conf && ldconfig /lib /usr/lib
 
 # 필요한 패키지 설치
 COPY requirements.txt /app/
