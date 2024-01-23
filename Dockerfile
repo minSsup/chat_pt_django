@@ -28,9 +28,6 @@ RUN apk --no-cache add libaio libnsl libc6-compat curl && \
 
 ENV LD_LIBRARY_PATH /usr/lib/instantclient
 
-# Oracle Instant Client 설치 후 동적 라이브러리 링크 갱신
-RUN echo /usr/local/instantclient_21_3 > /etc/ld.so.conf.d/oracle-instantclient.conf && ldconfig /lib /usr/lib
-
 # 필요한 패키지 설치
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
