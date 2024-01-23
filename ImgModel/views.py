@@ -105,7 +105,7 @@ def find_food_for_kakao(request):
             # 상위 4개 확률 가져오기
             top_4_probabilities = [round(float(prob) * 100, 2) for prob in predictions[0][top_4_foods]]
 
-            # 각 이미지에 대한 예측 결과 생성
+            # 각 이미지에 대한 예측 결과 생성!
             result = {
                 'base64_encoded_data': "null",
                 'category': category[:category.find('[')],
