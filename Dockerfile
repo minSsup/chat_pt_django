@@ -1,5 +1,5 @@
 # 기본 파이썬 이미지를 사용
-FROM python:3.11.5 as builder
+FROM python:3.11.5-alpine as builder
 
 # 환경변수 설정
 ENV PYTHONDONTWRITEBYTECODE 1
