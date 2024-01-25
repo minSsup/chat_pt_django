@@ -47,6 +47,7 @@ def find_food(request):
                     # 음식 이름 예측
                     model = apps.ImgmodelConfig.model
                     img_array = np.expand_dims(np.asarray(image_resize), axis=0)
+                    img_array = img_array.astype(np.float32) / 255.0
                     predictions = model.predict(img_array)
                     # 상위 4개 인덱스 가져오기
                     top_4_foods = [int(e) for e in np.argsort(predictions[0])[-4:]]
@@ -73,7 +74,6 @@ def find_food(request):
                 logger.error(f"Error processing image for category {category}: {e}")
 
         if results:
-            print(results)
             return JsonResponse({'status': 'success', 'results': results})
         else:
             return JsonResponse({'status': 'error', 'message': 'No files processed'}, status=400)
@@ -99,6 +99,7 @@ def find_food_for_kakao(request):
             # 음식 이름 예측
             model = apps.ImgmodelConfig.model
             img_array = np.expand_dims(np.asarray(image_resize), axis=0)
+            img_array = img_array.astype(np.float32) / 255.0
             predictions = model.predict(img_array)
             # 상위 4개 인덱스 가져오기
             top_4_foods = [int(e) for e in np.argsort(predictions[0])[-4:]]

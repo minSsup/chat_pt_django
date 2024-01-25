@@ -26,7 +26,7 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 모델 파일 다운로드
-RUN curl -o /app/modelFoodName1_200.h5 https://chat-pt.s3.ap-northeast-2.amazonaws.com/model/modelFoodName1_200.h5
+RUN curl -o /app/modelFoodName1_1000_std.h5 https://chat-pt.s3.ap-northeast-2.amazonaws.com/model/modelFoodName1_200.h5
 
 # Django 애플리케이션 추가
 COPY . /app/
