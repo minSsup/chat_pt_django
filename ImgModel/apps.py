@@ -12,7 +12,7 @@ class ImgmodelConfig(AppConfig):
     food_names = None
     def ready(self):
         # 모델 로드
-        ImgmodelConfig.model = load_model('modelFoodName1_200.h5')
+        ImgmodelConfig.model = load_model('modelFoodName1_1000_std.h5')
         # JSON 파일 읽기
         with open('food_names.json', 'r', encoding='utf-8') as file:
             ImgmodelConfig.food_names = json.load(file)
