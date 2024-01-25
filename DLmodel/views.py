@@ -152,6 +152,7 @@ def evaluate_predictions(testset, svd_model, knn_model, nmf_model):
         rmse = accuracy.rmse(predictions)
         print(f"Model {model.__class__.__name__} RMSE: {rmse}")
 
+
 # 추천 목록 10개를 반환하는 함수
 def get_recommendations(user_id, trainset, svd_model, knn_model, nmf_model, top_n=10):
     # 사용자가 평가하지 않은 항목들 찾기
@@ -168,6 +169,7 @@ def get_recommendations(user_id, trainset, svd_model, knn_model, nmf_model, top_
         nmf_pred = nmf_model.predict(user_id, trainset.to_raw_iid(item_inner_id)).est
         avg_pred = (svd_pred + knn_pred + nmf_pred) / 3
         predictions.append((item_inner_id, avg_pred))
+    print("앙상블 예측 RMSE",avg_pred)
 
     # 평점이 가장 높은 상위 N개 항목 추천
     predictions.sort(key=lambda x: x[1], reverse=True)
@@ -192,19 +194,19 @@ def cal_Recommended_Calories(user_id):
     user_activity = int(nomeminfo[0][5]) # 유저 활동량
     print(user_purpose)
 
-    # print("만나이 : " , user_age)
-    # print("성별 : ", user_gender)
-    # print("이름 : " ,user_name)
-    # print("키 : ", user_height)
-    # print("몸무게 : ", user_weight)
-    # print("목적 : ", user_purpose)
-    # print("활동량 : ", user_activity)
+    print("만나이 : " , user_age)
+    print("성별 : ", user_gender)
+    print("이름 : " ,user_name)
+    print("키 : ", user_height)
+    print("몸무게 : ", user_weight)
+    print("목적 : ", user_purpose)
+    print("활동량 : ", user_activity)
     recommand_cal = 0
 
     # 성별에 따른 칼로리 계산 (해리스-베네딕트 방정식)
-    if user_gender  == 'Male':
+    if user_gender  == 'male':
         recommand_cal = 88.362  + (13.397  *user_weight) + (4.799 * user_height) - (5.677 * user_age)
-    elif user_gender == 'Female':
+    elif user_gender == 'female':
         recommand_cal = 447.593  + (9.247  * user_weight) + (3.098  * user_height) - (4.330  * user_age)
 
     # 활동양에 따른 칼로리 계산 (해리스-베네딕트 방정식)
@@ -310,11 +312,15 @@ def foodnutrientInfo(food_num):
 def lastfoodInfo(usernum):
     lastfoodInfo = oracle_teamd().last_food_DB(usernum)
     print(lastfoodInfo)
-    foodInfo = oracle_teamd().food_Num_DB(lastfoodInfo[0][0])
-    print("음식전체 정보",foodInfo)
-    foodName =  foodInfo[0][7]
-    foodImage = foodInfo[0][2]
-    return foodName,foodImage
+    if lastfoodInfo:
+        foodInfo = oracle_teamd().food_Num_DB(lastfoodInfo[0][0])
+        print("음식전체 정보", foodInfo)
+        foodName = foodInfo[0][7]
+        foodImage = foodInfo[0][2]
+        return foodName, foodImage
+    else:
+        return None, None
+
 
 def getListAgeFood(usernum, ageDecade):
     ageFoodList = oracle_teamd().list_age_food_info(usernum,ageDecade)
