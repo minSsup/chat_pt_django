@@ -3,7 +3,6 @@ from django.http import JsonResponse
 from ImgModel import apps
 import cv2
 import numpy as np
-from ImgModel.models import oracle_teamd
 import base64
 import logging
 from PIL import Image
