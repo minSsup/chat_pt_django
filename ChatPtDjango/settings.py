@@ -25,7 +25,8 @@ SECRET_KEY = "django-insecure-flw!yb23kwxk!5f^ivv=h$ifz#@3*&g(v$h1*&24#u*%sk0-s0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['43.201.156.237', '192.168.0.211', '192.168.0.225', 'localhost']
+# 2월 2일자 수정
+ALLOWED_HOSTS = ['3.36.122.91', '192.168.0.211', '192.168.0.225', 'localhost'] 
 
 
 
